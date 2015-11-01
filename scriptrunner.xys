@@ -1,0 +1,29 @@
+"init"
+  global $scriptfile, $cmd;
+  if (<drop> != ""){
+    $scriptfile = gettoken(get('drop'), 1, '|'); //get first dropped item
+    if     (gpc($scriptfile, 'ext') == 'ahk') { sub '_cmdset'; sub '_ahkrun'; }
+    elseif (gpc($scriptfile, 'ext') == 'au3') { sub '_cmdset'; sub '_au3run'; }
+    else   { status "no ahk or au3 file dropped.",,'alert'; }
+  }
+  elseif exists("<curpath>\xypcre.ahk") {
+    $scriptfile = "<curpath>\xypcre.ahk"; sub '_cmdset';  sub _ahkrun; } //ahk first
+  elseif exists("<curpath>\xypcre.au3") {
+    $scriptfile = "<curpath>\xypcre.au3"; sub '_cmdset';  sub _au3run; }
+  else   { status "no xypcre.ahk or xypcre.au3 file found.",,'alert'; }
+  end 1;
+
+"ahkrun : _ahkrun"
+  global $scriptfile, $cmd;
+  run """<get alias programs>\autohotkey\ahk.exe"" ""$scriptfile"" ". $cmd;
+
+"au3run : _au3run"
+  global $scriptfile, $cmd;
+  run """<get alias programs>\autoit3\au3.exe"" ""$scriptfile"" " . $cmd ;
+
+"cmdset : _cmdset"
+  global $scriptfile, $cmd;
+  $cmd = input('['.((gpc($scriptfile,'ext')=='ahk')?'AHK':'AU3')."] enter cmdline",
+               'normal: <script> <hwnd> $IFS'.<crlf>.'abort: <script> abort killhwnd'.<crlf>.
+               'error: <script>, <script> abort, <script> 1, <script> one 2 "big whoop"',
+               "<hwnd> $P_UDF_PCRE_IFS");
