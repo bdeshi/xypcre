@@ -1,0 +1,6 @@
+/ref/
+*.bak
+todo.todo
+scratch
+*.sublime-*
+*.exe
