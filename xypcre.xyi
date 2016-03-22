@@ -20,15 +20,16 @@ pcrematch()
 Finds regexp pattern match(es) in a given string.
   $string   String to work on (haystack).
   $pattern  The RegExp pattern to match in string (needle).
-  $sep      Separator between matches. This must be at least
-            two chars long. If only one char is provided, it
-            is auto-doubled. irrelevant if $format == 2.
+  $sep      Separator between matches. Should be at least two
+            chars wide to account for strings that may already
+            contain $sep characters.
+            This parameter is irrelevant if $format == 2.
   $index    1-based index of a single match to return.
             No effect if < 1. Returns last match if > total.
   $format   0  simple $sep-separated tokens.
-            1  Escape tokens against each $sep character.
-               Escaped as [s][e][p][a][r][a][t][o][r]
-            2  create a special tokenlist like this:
+            1  Escape tokens against $sep character(s).
+               Escaped as [$][s][e][p]
+            2  create a special tokenlist in this format:
                token1length,token2length|token1token2
             Default value is 2. Values cannot be combined.
 Return: list of matches.
@@ -61,8 +62,6 @@ FUNCTION pcrematch($string, $pattern, $sep='||', $index=0, $format=2) {
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
   copydata $xypcreHwnd, $pattern, 0;  //send pattern
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  //make sure $sep is valid
-  if (strlen($sep)==1){$sep = strrepeat($sep, 2);}
   copydata $xypcreHwnd, $sep, 0; //send separator
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
   copydata $xypcreHwnd, $index, 0;
@@ -109,7 +108,6 @@ FUNCTION pcrecapture($string, $pattern, $index=1, $sep='||', $format=2) {
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
   copydata $xypcreHwnd, $index, 0;
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  if (strlen($sep)==1){$sep = strrepeat($sep, 2);}
   copydata $xypcreHwnd, $sep, 0;
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
   copydata $xypcreHwnd, $format, 0;
@@ -182,7 +180,6 @@ FUNCTION pcresplit($string, $pattern, $sep='||', $format=2) {
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
   copydata $xypcreHwnd, $pattern, 0;
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  if (strlen($sep)==1){$sep = strrepeat($sep, 2);}
   copydata $xypcreHwnd, $sep, 0;
     if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
   copydata $xypcreHwnd, $format, 0;
@@ -212,8 +209,6 @@ FUNCTION pcretoken($matches, $index=1, $format=2, $sep='||') {
     $return = gettoken($matches, $index, $sep);
   }
   elseif ($format == 1) { //escaped tokenlist
-    //make sure $sep is valid
-    if (strlen($sep)==1){$sep = strrepeat($sep, 2);}
     $return = gettoken($matches, $index, $sep);
     if ($index == 'count') { return $return; }
     set $uniq; //uniq char container, save loops
