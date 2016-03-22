@@ -37,41 +37,42 @@ Return: list of matches.
 FUNCTION pcrematch($string, $pattern, $sep='||', $index=0, $format=2) {
   //locate and validate the xypcre utility
   $xypcre = xypcrefind();
-    if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
+  if ($xypcre == '') || ($xypcre == 'xypcrefind()') { return; }
+
   //setup the interapp-flow-synchronizer variable
-  $IFS = '$P_UDF_pcre_IFS'; $k = 0;
+  $IFS = '$P_UDF_pcre_IFS';  $k = 0;
   //find a unique variable name
-    while (isset(*$IFS)){ $IFS = '$P_UDF_pcre_IFS'.$k; $k++; }
-  unset $k; perm *$IFS;
+  while (isset(*$IFS)) { $IFS = '$P_UDF_pcre_IFS'.$k;  $k++; }
+  unset $k;  perm *$IFS;
   //now $IFS points to this session's IFS var as *$IFS
-  $op = 0; //operation mode
+
+  $op = 0;  //operation mode
   //run xypcre, and provide XY hwnd and the IFS var name
   //xypcre will return it's gui and main hwnd in *$IFS
   run $xypcre.' '.<hwnd>.' '.quote($IFS);
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) {return ;}
-  $xypcreHwnd = gettoken(*$IFS,1,'|'); //hwnd to send msg 
-  $killHwnd = gettoken(*$IFS,2,'|');   //main hwnd to kill xypcre
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) { return; }
+  $xypcreHwnd = gettoken(*$IFS, 1, '|');  //hwnd to send msg 
+  $killHwnd   = gettoken(*$IFS, 2, '|');  //main hwnd to kill xypcre
   set *$IFS, '';
 
-  // send data elements
+  // send parameters
   // xypcre acknowledeges reception by sending loop-breaker (by touching *$IFS)
   // also keep time, and opt to stop if taking too long (xypcre hang/crash)
-  copydata $xypcreHwnd, $op, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $string, 0;   //send string
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $pattern, 0;  //send pattern
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $sep, 0; //send separator
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $index, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $format, 0;
+  copydata $xypcreHwnd,      $op, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $string, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd, $pattern, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,     $sep, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,   $index, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $format, 0;
 
   //all params sent, wait till final return, IDed by $op prefix
-  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) {return ;}
-  $return = *$IFS;    //result
-  unset *$IFS; //remove the IFS permavar
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) { return; }
+  $return = *$IFS;  unset *$IFS;  //result is passed into *$IFS
   return $return;
 }
 
@@ -89,30 +90,30 @@ Return: List of strings matching specified capturing group.
 */
 FUNCTION pcrecapture($string, $pattern, $index=1, $sep='||', $format=2) {
   $xypcre = xypcrefind();
-    if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
-  $IFS = '$P_UDF_pcre_IFS'; $k = 0;
-    while (isset(*$IFS)){ $IFS = '$P_UDF_pcre_IFS'.$k; $k++; }
-  unset $k; perm *$IFS;
+  if ($xypcre == '') || ($xypcre == 'xypcrefind()') { return; }
+  $IFS = '$P_UDF_pcre_IFS';  $k = 0;
+  while (isset(*$IFS)) { $IFS = '$P_UDF_pcre_IFS'.$k;  $k++; }
+  unset $k;  perm *$IFS;
   $op = 1;
   run $xypcre.' '.<hwnd>.' '.quote($IFS);
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) {return ;}
-  $xypcreHwnd = gettoken(*$IFS,1,'|');
-  $killHwnd = gettoken(*$IFS,2,'|');
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) { return; }
+  $xypcreHwnd = gettoken(*$IFS, 1, '|');
+  $killHwnd   = gettoken(*$IFS, 2, '|');
   set *$IFS, '';
 
-  copydata $xypcreHwnd, $op, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $string, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
+  copydata $xypcreHwnd,      $op, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $string, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
   copydata $xypcreHwnd, $pattern, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $index, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $sep, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $format, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,   $index, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,     $sep, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $format, 0;
 
-  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) {return ;}
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) { return; }
   $return = *$IFS;  unset *$IFS;
   return $return;
 }
@@ -127,26 +128,26 @@ Return: resulting string after replacement.
 */
 FUNCTION pcrereplace($string, $pattern, $replace) {
   $xypcre = xypcrefind();
-    if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
-  $IFS = '$P_UDF_pcre_IFS'; $k = 0;
-    while (isset(*$IFS)){ $IFS = '$P_UDF_pcre_IFS'.$k; $k++; }
-  unset $k; perm *$IFS;
+  if ($xypcre == '') || ($xypcre == 'xypcrefind()') { return; }
+  $IFS = '$P_UDF_pcre_IFS';  $k = 0;
+  while (isset(*$IFS)) { $IFS = '$P_UDF_pcre_IFS'.$k;  $k++; }
+  unset $k;  perm *$IFS;
   $op = 2;
   run $xypcre.' '.<hwnd>.' '.quote($IFS);
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) {return ;}
-  $xypcreHwnd = gettoken(*$IFS,1,'|');
-  $killHwnd = gettoken(*$IFS,2,'|');
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) { return; }
+  $xypcreHwnd = gettoken(*$IFS, 1, '|');
+  $killHwnd   = gettoken(*$IFS, 2, '|');
   set *$IFS, '';
 
-  copydata $xypcreHwnd, $op, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $string, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
+  copydata $xypcreHwnd,      $op, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $string, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
   copydata $xypcreHwnd, $pattern, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
   copydata $xypcreHwnd, $replace, 0;
 
-  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) {return ;}
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) { return; }
   $return = *$IFS;  unset *$IFS;
   return $return;
 }
@@ -163,28 +164,28 @@ Returns: split substrings.
 */
 FUNCTION pcresplit($string, $pattern, $sep='||', $format=2) {
   $xypcre = xypcrefind();
-    if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
-  $IFS = '$P_UDF_pcre_IFS'; $k = 0;
-    while (isset(*$IFS)){ $IFS = '$P_UDF_pcre_IFS'.$k; $k++; }
-  unset $k; perm *$IFS;
+  if ($xypcre == '') || ($xypcre == 'xypcrefind()') { return; }
+  $IFS = '$P_UDF_pcre_IFS';  $k = 0;
+  while (isset(*$IFS)) { $IFS = '$P_UDF_pcre_IFS'.$k;  $k++; }
+  unset $k;  perm *$IFS;
   $op = 3;
   run $xypcre.' '.<hwnd>.' '.quote($IFS);
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) {return ;}
-  $xypcreHwnd = gettoken(*$IFS,1,'|');
-  $killHwnd = gettoken(*$IFS,2,'|');
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd, 0) == 1) { return; }
+  $xypcreHwnd = gettoken(*$IFS, 1, '|');
+  $killHwnd   = gettoken(*$IFS, 2, '|');
   set *$IFS, '';
 
-  copydata $xypcreHwnd, $op, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $string, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
+  copydata $xypcreHwnd,      $op, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $string, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
   copydata $xypcreHwnd, $pattern, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $sep, 0;
-    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) {return ;}
-  copydata $xypcreHwnd, $format, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,     $sep, 0;
+    if (xypcrewaiter($IFS, $xypcre, $killHwnd) == 1) { return; }
+  copydata $xypcreHwnd,  $format, 0;
 
-  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) {return ;}
+  if (xypcrewaiter($IFS, $xypcre, $killHwnd, 2, $op) == 1) { return; }
   $return = *$IFS;  unset *$IFS;
   return $return;
 }
@@ -204,78 +205,85 @@ Return: specified token or token count.
 */
 FUNCTION pcretoken($matches, $index=1, $format=2, $sep='||') {
   //make sure $index is valid
-  if ($index != 'count') && ($index*1 == 0) { $index =1; }
-  if ($format == 0) { //simple tokenlist
+  if ($index != 'count') && ($index*1 == 0) { $index = 1; }
+
+  if       ($format == 0) { //simple tokenlist
     $return = gettoken($matches, $index, $sep);
-  }
-  elseif ($format == 1) { //escaped tokenlist
+  } elseif ($format == 1) { //escaped tokenlist
     $return = gettoken($matches, $index, $sep);
     if ($index == 'count') { return $return; }
-    set $uniq; //uniq char container, save loops
-    $len = strlen($sep);
+    $uniq   = '';  //uniq char container, save loops
+    $len    = strlen($sep);
     while ($c++ < $len) {
-      $chr = substr($sep, $c-1, 1);
-      if (strpos($uniq, $chr,, 1)==-1) {
-        $uniq = $uniq.$chr;
+      $chr  = substr($sep, $c-1, 1);
+      if (strpos($uniq, $chr,, 1) == -1) {
+        $uniq   = $uniq.$chr;
         $return = replace($return, '['.$chr.']', $chr, 1);
       }
     }
-  }
-  elseif ($format == 2) { //xypcre-format tokenlist
-    $xlen = gettoken($matches, 1, '|'); //all lengths
+  } elseif ($format == 2) { //xypcre-format tokenlist
+    $xlen    = gettoken($matches, 1, '|');              //all lengths
     if ($index == 'count') { return gettoken($xlen, 'count', '+'); }
-    $matches = substr($matches, strlen($xlen)+1); //extract matches
-    $len  = gettoken($xlen, $index, '+', 't'); //length of return token
-    $xlen = gettoken($xlen, $index-1, '+', 't', 1); //all lengths before
-    $xlen = eval($xlen) + 0; //calc start of return token
-    $return = substr($matches, $xlen, $len);
+    $matches = substr($matches, strlen($xlen)+1);       //extract matches
+    $len     = gettoken($xlen, $index, '+', 't');       //return token legth
+    $xlen    = gettoken($xlen, $index-1, '+', 't', 1);  //lengths before ret.
+    $xlen    = eval($xlen) + 0;                         //calc ret.token start
+    $return  = substr($matches, $xlen, $len);
+  } else {
+    $return = '';
   }
-  else {$return = '';}
   return $return;
 }
 
 /*====== HELPER FUNCTIONS ======*/
 /*core functions will not work without these*/
-FUNCTION xypcrewaiter(&$IFS, &$xypcre, &$killHwnd, $phase=1, $op='.'){
+FUNCTION xypcrewaiter(&$IFS, &$xypcre, &$killHwnd, $phase=1, $op='.') {
 //Wait till getting next msg in *$IFS. May touch *$IFS, $xypcre
 //Return 0:OK/CONTINUE,1:BAD/EXIT
 //phase 0: initial only stop udf on abort
 //      1: interim stop xypcre + udf on abort
 //      2: stopper last msg step check for $op in data
-  $msg = "RegExp engine Nonresponsive. Abort with empty return?"; //abort msg
-  $fmt = 'yyyy-mm-dd hh:nn:ss'; //timing format
-  $wait = 9; //waiting period in seconds before abort notice
+  $msg  = "RegExp engine Nonresponsive. Abort with empty return?";  //abort msg
+  $fmt  = 'yyyy-mm-dd hh:nn:ss';  //time format
+  $wait = 9;  //waiting period in seconds before abort notice
   $time = now($fmt);
   if ($phase == 2) {
     //in last step, xypcre send result in copydata as string
-    while (substr(get('CopiedData',3), 0, 1) != $op){
-      if (datediff($time,,'s') > $wait) {
-        if confirm($msg,,2) {
+    while (substr(get('CopiedData', 3), 0, 1) != $op) {
+      if (datediff($time,, 's') > $wait) {
+        if (confirm($msg,, 2)) {
           run $xypcre.' abort '.$killHwnd;
-          unset *$IFS;  return 1;
-        } else { $time = now($fmt); }
+          unset *$IFS;
+          return 1;
+        } else {
+          $time = now($fmt);
+        }
       }
-      wait 1; continue;
+      wait 1;  continue;
     }
     set *$IFS, substr(gettoken(get('CopiedData'), 3, '|',, 2), 1);
   } else {
     //otherwise xypcre resets *$IFS
-    while (*$IFS == ''){
-      if (datediff($time,,'s') > $wait) { //if $w secs elasped, ask to abort
-        if confirm($msg,,2) {
+    while (*$IFS == '') {
+      if (datediff($time,, 's') > $wait) {  //ask to abort if $wait time gone
+        if (confirm($msg,, 2)) {
           //clean up before aborting
           if ($phase!=0){ run $xypcre.' abort '.$killHwnd; }
-          unset *$IFS;  return 1; //abort! abort!
-        } else { $time = now($fmt); }
+          unset *$IFS;
+          return 1;
+        } else {
+          $time = now($fmt);
+        }
       }
-      wait 1; continue;
+      wait 1;  continue;
     }
     if ($phase == 1) { set *$IFS, ''; }
     //$IFS value left as is in phase 0
+    //if ($phase == 0) { }
   }
-  return 0; //all OK!
+  return 0;  //all OK!
 }
-FUNCTION xypcrefind(){
+FUNCTION xypcrefind() {
   // tries to find xypcre in paths $l1,$l2,$l3
   $l1 = "<xyscripts>\xypcre.exe";
   $l2 = "<xydata>\xypcre.exe";
@@ -286,12 +294,13 @@ FUNCTION xypcrefind(){
   elseif (exists($l3) == 1) { $xypcre = $l3; }
   else   {
     echo "Downloading xypcre to<crlf>$l1", "XYPCRE not found";
-    download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849',$l1,'o';
+    download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849', $l1, 'o';
     $xypcre = $l1;
   }
   //$xypcre = """autoit3.exe"" ""<xyscripts>\inc\xypcre\xypcre_stripped.au3""";
   //if (gettoken(runret($xypcre),1,<crlf>)!='XYplorerPCRE') {//for xypcre.au3
-  If (property('System.Software.ProductName',$xypcre)!='XYplorerPCRE') {
-    echo "Cannot find xypcre.","XYPCRE error",,9; $xypcre = ''; }
+  If (property('System.Software.ProductName', $xypcre) != 'XYplorerPCRE') {
+    $xypcre = ''; echo "Cannot find xypcre.", "XYPCRE error",, 9;
+  }
   return $xypcre;
 }

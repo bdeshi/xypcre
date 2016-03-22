@@ -43,7 +43,7 @@ FUNCTION pcresplit($s,$p,$d='||',$f=2){
  if(xypcrewaiter($I,$x,$q,2,$o)==1){return}$r=*$I;unset *$I;return $r}
 FUNCTION pcretoken($m,$i=1,$f=2,$d='||'){
  if($i!='count')&&($i*1==0){$i=1}if($f==0){$r=gettoken($m,$i,$d)}elseif($f==1)
- {$r=gettoken($m,$i,$d);if($i=='count'){return $r}set $u;$l=strlen($d);
+ {$r=gettoken($m,$i,$d);if($i=='count'){return $r}$u='';$l=strlen($d);
  while($j++<$l){$c=substr($d,$j-1,1);if(strpos($u,$c,,1)==-1){$u=$u.$c;
  $r=replace($r,'['.$c.']',$c,1)}}}elseif($f==2){$x=gettoken($m,1,'|');
  if($i=='count'){return gettoken($x,'count','+')}$m=substr($m,strlen($x)+1);
@@ -53,9 +53,9 @@ FUNCTION xypcrewaiter(&$I,&$x,&$q,$p=1,$o='.'){
  $m="RegExp engine Nonresponsive. Abort with empty return?";
  $f='yyyy-mm-dd hh:nn:ss';$w=8;$t=now($f);if($p==2)
  {while(substr(get('CopiedData',3),0,1)!=$o){if(datediff($t,,'s')>$w)
- {if confirm($m,,2){run $x.' abort '.$q;unset *$I;return 1}else{$t=now($f)}}
+ {if(confirm($m,,2)){run $x.' abort '.$q;unset *$I;return 1}else{$t=now($f)}}
  wait 1;continue}set *$I,substr(gettoken(get('CopiedData'),3,'|',,2),1)}
- else{while(*$I==''){if(datediff($t,,'s')>$w){if confirm($m,,2){if($p!=0)
+ else{while(*$I==''){if(datediff($t,,'s')>$w){if(confirm($m,,2)){if($p!=0)
  {run $x.' abort '.$q}unset *$I;return 1}else{$t=now($f)}}wait 1;continue}
  if($p==1){set *$I,''}}return 0}
 FUNCTION xypcrefind(){
@@ -66,4 +66,4 @@ FUNCTION xypcrefind(){
  else{echo "Downloading xypcre to<crlf>$l1","XYPCRE not found";
  download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849',$l1,'o';
  $x=$l1}If(property('System.Software.ProductName',$x)!='XYplorerPCRE')
- {echo "Cannot find xypcre.","XYPCRE error",,9;$x=''}return $x}
+ {$x='';echo "Cannot find xypcre.","XYPCRE error",,9}return $x}
