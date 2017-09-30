@@ -1,4 +1,4 @@
-/*xypcre|v1.1.9|http://www.xyplorer.com/xyfc/viewtopic.php?f=7&t=14569*/
+/*xypcre|v1.2.0|http://www.xyplorer.com/xyfc/viewtopic.php?f=7&t=14569*/
 NAMESPACE xypcre
 FUNCTION pcrematch($s,$p,$d='||',$i=0,$f=2){
  $x=xypcrefind();if($x=='')||($x=='xypcrefind()'){return}$I='$P_UDF_pcre_IFS';
