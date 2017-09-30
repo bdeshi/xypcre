@@ -81,11 +81,11 @@ Func Main()
 EndFunc   ;==>Main
 
 ;main data send/reception wait loop
-;send $Data with XY loopbreaker, wait for XY send,se received to $Data
+;send $Data with XY loopbreaker, wait for XY send, put received to $Data
 Func MsgWaiter($dwdata)
 	ResetData()
 	OUT_XYMSG($Data, $dwdata) ; send $Data with loopbreaker
-	;when XY send next msg, $Step is incremented to match $c
+	;$pstep incremented in IN_XYMSG() on each reception
 	Do ; wait till then
 		ContinueLoop
 	Until $pstep == $nstep
@@ -113,7 +113,7 @@ Func SepEscape($str)
 		If($s[$i] <> '') Then
 			$u[$k] = $s[$i]
 			$k += 1 ; keep count of unique chars
-			$s[$i] = '' ;mamorysave ?s
+			$s[$i] = '' ;memorysave ?s
 		EndIf
 	Next
 	ReDim $u[$k] ;remove extra $u length
@@ -128,7 +128,7 @@ Func opReplace()
 	$string = MsgWaiter($dwScript)
 	$pattern = MsgWaiter($dwScript)
 	$replace = MsgWaiter($dwScript)
-	;all neceassary params received
+	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
 	OUT_XYMSG($Data, $dwScript)
@@ -161,7 +161,7 @@ Func opMatch()
 	$sep = MsgWaiter($dwScript)
 	$index = MsgWaiter($dwScript)
 	$format = MsgWaiter($dwScript)
-	;all neceassary params received
+	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
 	OUT_XYMSG($Data, $dwScript)
@@ -236,7 +236,7 @@ Func opCapture()
 	$index = MsgWaiter($dwScript)
 	$sep = MsgWaiter($dwScript)
 	$format = MsgWaiter($dwScript)
-	;all neceassary params received
+	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
 	OUT_XYMSG($Data, $dwScript)
@@ -303,7 +303,7 @@ Func opSplit()
 	$pattern = MsgWaiter($dwScript)
 	$sep = MsgWaiter($dwScript)
 	$format = MsgWaiter($dwScript)
-	;all neceassary params received
+	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
 	OUT_XYMSG($Data, $dwScript)
@@ -360,7 +360,8 @@ EndFunc   ;==>pcreSplit
 Func IN_XYMSG($hWnd, $Msg, $wParam, $lParam)
 	Local $tagCOPYDATASTRUCT = 'ulong_ptr dwData;' & 'dword cbData;' & 'ptr lpData'
 	Local $tCOPYDATASTRUCT = DllStructCreate($tagCOPYDATASTRUCT, $lParam)
-	Local $tBuffer = DllStructCreate('wchar cdata[' & DllStructGetData($tCOPYDATASTRUCT, 'cbData') / 2 & ']', DllStructGetData($tCOPYDATASTRUCT, 'lpData'))
+	Local $tBuffer = DllStructCreate('wchar cdata[' & DllStructGetData($tCOPYDATASTRUCT, 'cbData') / 2 & ']', _
+			DllStructGetData($tCOPYDATASTRUCT, 'lpData'))
 	; Local $dwData = DllStructGetData($tCOPYDATASTRUCT, 'dwData')
 	$Data = DllStructGetData($tBuffer, 'cdata') ; Data.
 	$pstep += 1 ;enable wait for next data reception
@@ -376,7 +377,8 @@ Func OUT_XYMSG(ByRef $Data, ByRef Const $dwdata)
 	DllStructSetData($pCds, 1, $dwdata)
 	DllStructSetData($pCds, 2, ($iSize * 2))
 	DllStructSetData($pCds, 3, DllStructGetPtr($pMem))
-	DllCall($hUser32dll, "lresult", "SendMessageW", "hwnd", $XYhWnd, "uint", $WM_COPYDATA, "wparam", 0, "lparam", DllStructGetPtr($pCds))
+	DllCall($hUser32dll, "lresult", "SendMessageW", "hwnd", $XYhWnd, "uint", $WM_COPYDATA, _
+			"wparam", 0, "lparam", DllStructGetPtr($pCds))
 	Return
 EndFunc   ;==>OUT_XYMSG
 

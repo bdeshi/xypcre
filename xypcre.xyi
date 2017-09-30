@@ -285,7 +285,7 @@ FUNCTION xypcrefind(){
   elseif (exists($l2) == 1) { $xypcre = $l2; }
   elseif (exists($l3) == 1) { $xypcre = $l3; }
   else   {
-    echo "Downloading (~350kb) to<crlf>$loc1", "XYPCRE not found";
+    echo "Downloading (~350kb) to<crlf>$l1", "XYPCRE not found";
     download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849',$l1,'o';
     $xypcre = $l1;
   }
