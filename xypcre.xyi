@@ -10,27 +10,28 @@
   the functions can download xypcre.exe to the expected path
   at runtime. See the xypcrefind() function for details.  */
 NAMESPACE xypcre
-/*CORE:   pcrematch(),pcrereplace(),pcrecapture(),pcresplit()
-**HELPER: xypcrefind(),xypcrewaiter()
-**EXTRA:  pcretoken()
+/*CORE  :pcrematch(),pcrereplace(),pcrecapture(),pcresplit()
+**DEPEND:xypcrefind(),xypcrewaiter()
+**HELPER:pcretoken()
 */
+
 /*
 pcrematch()
-   Returns regexp pattern match(es) in a given string.
-$string  String to work on (haystack).
-$pattern The RegExp pattern to match in string (needle).
-$sep     Separator between matches. This must be at least
-         two chars long. If only one char is provided, it
-         is auto-doubled. irrelevant if $format == 2.
-$index   1-based Index of a single match to return.
-         No effect if < 1. Returns last match if > total.
-$format  1  Escape tokens against each $sep character.
-            Escaped as [s][e][p][a][r][a][t][o][r]
-         2  create a special tokenlist like this:
-            token1length,token2length|token1token2
-         0  no escaping, simple $sep-separated tokens
-         Default value is 2. Values cannot be combined.
-Define options such as matchcase etc inside regexp pattern.
+Finds regexp pattern match(es) in a given string.
+  $string   String to work on (haystack).
+  $pattern  The RegExp pattern to match in string (needle).
+  $sep      Separator between matches. This must be at least
+            two chars long. If only one char is provided, it
+            is auto-doubled. irrelevant if $format == 2.
+  $index    1-based index of a single match to return.
+            No effect if < 1. Returns last match if > total.
+  $format   0  simple $sep-separated tokens.
+            1  Escape tokens against each $sep character.
+               Escaped as [s][e][p][a][r][a][t][o][r]
+            2  create a special tokenlist like this:
+               token1length,token2length|token1token2
+            Default value is 2. Values cannot be combined.
+Return: list of matches.
 */
 FUNCTION pcrematch($string, $pattern, $sep='||', $index=0, $format=2) {
   //locate and validate the xypcre utility
@@ -75,17 +76,18 @@ FUNCTION pcrematch($string, $pattern, $sep='||', $index=0, $format=2) {
   return $return;
 }
 
-/*pcrecapture()
-   Matches a regexp pattern in a given string and returns
-   substring(s) that matched a capturing group.
-$string   String to work on (haystack).
-$pattern  The RegExp pattern with capturing group to match.
-$index    1-based index of a captured group to return.
-          Returns 1st group if < 1 and last one if > total.
-          Pass named groups by their ordinal index.
-$sep      same as in pcrematch()
-$format   same as in pcrematch()
-Notes: see notes of pcrematch() */
+/*
+pcrecapture()
+Finds captured groups of a regexp pattern in a given string.
+  $string   String to work on (haystack).
+  $pattern  The RegExp pattern with capturing group to match.
+  $index    1-based index of the captured group to return.
+            Returns 1st group if < 1 and last one if > total.
+            Pass named groups by their ordinal index.
+  $sep      same as in pcrematch().
+  $format   same as in pcrematch().
+Return: List of strings matching specified capturing group.
+*/
 FUNCTION pcrecapture($string, $pattern, $index=1, $sep='||', $format=2) {
   $xypcre = xypcrefind();
     if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
@@ -117,12 +119,14 @@ FUNCTION pcrecapture($string, $pattern, $index=1, $sep='||', $format=2) {
   return $return;
 }
 
-/*pcrereplace()
-   Replaces parts of a string, using a regexp pattern.
-   Returns resulting string after replacement.
-$string   String to work on (haystack).
-$pattern  The RegExp pattern to match in string (needle).
-$replace  The string or pattern to replace with. */
+/*
+pcrereplace()
+Replaces parts of a string, using a regexp pattern.
+  $string   String to work on (haystack).
+  $pattern  The RegExp pattern to match in string (needle).
+  $replace  The string or pattern to replace with. 
+Return: resulting string after replacement.
+*/
 FUNCTION pcrereplace($string, $pattern, $replace) {
   $xypcre = xypcrefind();
     if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
@@ -150,15 +154,15 @@ FUNCTION pcrereplace($string, $pattern, $replace) {
 }
 
 /*pcresplit()
-   Splits a string into substrings at each position
-   where a regexp pattern matches.
-   Returns substrings.
-$string   String to work on.
-$pattern  The RegExp pattern to match.
-          The matching region is removed while splitting.
-$sep      same as in pcrematch()
-$format   same as in pcrematch()
-Notes: see notes of pcrematch() */
+Splits a string into substrings at each position where
+the given regexp pattern matches.
+  $string   String to work on.
+  $pattern  The RegExp pattern to match.
+            The matching region is removed while splitting.
+  $sep      token separator. See pcrematch().
+  $format   format of return. See pcrematch().
+Returns: split substrings.
+*/
 FUNCTION pcresplit($string, $pattern, $sep='||', $format=2) {
   $xypcre = xypcrefind();
     if ($xypcre == '') || ($xypcre == 'xypcrefind()') {return ;}
@@ -190,26 +194,28 @@ FUNCTION pcresplit($string, $pattern, $sep='||', $format=2) {
 
 
 /*====== EXTRA FUNCTIONS ======*/
-/*pcretoken()
-   extracts a match from formatted xypcre returns.
-   Returns original form of token, or total count.
-$matches  pcre UDF formatted source matchlist
-$index    'count':  return total match count
-          a number: 1-based match index to return.
-$format   format of $matches. See pcrematch().
-$sep      separator in $matches. See pcrematch().
-          Irrelevant if $format == 2 */
+
+/*
+pcretoken()
+Extracts a match from formatted xypcre returns.
+  $matches  pcre UDF formatted source matchlist
+  $index    'count':  return total match count
+            integer:  1-based match index to return.
+  $format   format of return. See pcrematch().
+  $sep      token separator. See pcrematch().
+Return: specified token or token count.
+*/
 FUNCTION pcretoken($matches, $index=1, $format=2, $sep='||') {
-  //make sure $sep is valid
-  if (strlen($sep)==1){$sep = strrepeat($sep, 2);}
   //make sure $index is valid
-  if ($index != 'count') && ($index*1 == 0){ $index =1; }
+  if ($index != 'count') && ($index*1 == 0) { $index =1; }
   if ($format == 0) { //simple tokenlist
     $return = gettoken($matches, $index, $sep);
   }
   elseif ($format == 1) { //escaped tokenlist
+    //make sure $sep is valid
+    if (strlen($sep)==1){$sep = strrepeat($sep, 2);}
     $return = gettoken($matches, $index, $sep);
-    if ($index == 'count'){ return $return; }
+    if ($index == 'count') { return $return; }
     set $uniq; //uniq char container, save loops
     $len = strlen($sep);
     while ($c++ < $len) {
@@ -220,7 +226,7 @@ FUNCTION pcretoken($matches, $index=1, $format=2, $sep='||') {
       }
     }
   }
-  elseif ($format == 2) { //pcreUDF-formatted tokenlist
+  elseif ($format == 2) { //xypcre-format tokenlist
     $xlen = gettoken($matches, 1, '|'); //all lengths
     if ($index == 'count') { return gettoken($xlen, 'count', '+'); }
     $matches = substr($matches, strlen($xlen)+1); //extract matches
@@ -236,37 +242,36 @@ FUNCTION pcretoken($matches, $index=1, $format=2, $sep='||') {
 /*====== HELPER FUNCTIONS ======*/
 /*core functions will not work without these*/
 FUNCTION xypcrewaiter(&$IFS, &$xypcre, &$killHwnd, $phase=1, $op='.'){
- //Wait till getting next msg in *$IFS. May touch *$IFS, $xypcre
- //Return 0 OK,CONTINUE 1 BAD, EXIT
- //phase 0: initial only stop udf on abort
- //      1: interim stop xypcre + udf on abort
- //      2: stopper last msg step check for $op in data
-  $m = "RegExp engine Nonresponsive. Abort with empty return?"; //abort msg
-  $f = 'yyyy-mm-dd hh:nn:ss'; //timing format
-  $w = 9; //waiting period in seconds before abort notice
-
-  $t = now($f);
+//Wait till getting next msg in *$IFS. May touch *$IFS, $xypcre
+//Return 0:OK/CONTINUE,1:BAD/EXIT
+//phase 0: initial only stop udf on abort
+//      1: interim stop xypcre + udf on abort
+//      2: stopper last msg step check for $op in data
+  $msg = "RegExp engine Nonresponsive. Abort with empty return?"; //abort msg
+  $fmt = 'yyyy-mm-dd hh:nn:ss'; //timing format
+  $wait = 9; //waiting period in seconds before abort notice
+  $time = now($fmt);
   if ($phase == 2) {
     //in last step, xypcre send result in copydata as string
-    while (substr(get('CopiedData',3),0,1)!=$op){
-      if (datediff($t,,'s') > $w) {
-        if confirm($m,,2) {
+    while (substr(get('CopiedData',3), 0, 1) != $op){
+      if (datediff($time,,'s') > $wait) {
+        if confirm($msg,,2) {
           run $xypcre.' abort '.$killHwnd;
           unset *$IFS;  return 1;
-        } else { $t = now($f); }
+        } else { $time = now($fmt); }
       }
       wait 1; continue;
     }
-    set *$IFS, substr(gettoken(get('CopiedData'),3,'|',,2), 1);
+    set *$IFS, substr(gettoken(get('CopiedData'), 3, '|',, 2), 1);
   } else {
     //otherwise xypcre resets *$IFS
     while (*$IFS == ''){
-      if (datediff($t,,'s') > $w) { //if $w secs elasped, ask to abort
-        if confirm($m,,2) {
+      if (datediff($time,,'s') > $wait) { //if $w secs elasped, ask to abort
+        if confirm($msg,,2) {
           //clean up before aborting
           if ($phase!=0){ run $xypcre.' abort '.$killHwnd; }
           unset *$IFS;  return 1; //abort! abort!
-        } else { $t = now($f); }
+        } else { $time = now($fmt); }
       }
       wait 1; continue;
     }
@@ -276,8 +281,7 @@ FUNCTION xypcrewaiter(&$IFS, &$xypcre, &$killHwnd, $phase=1, $op='.'){
   return 0; //all OK!
 }
 FUNCTION xypcrefind(){
-  // tries to intelligently find xypcre.
-  // Default path is <xyscripts>\xypcre.exe
+  // tries to find xypcre in paths $l1,$l2,$l3
   $l1 = "<xyscripts>\xypcre.exe";
   $l2 = "<xydata>\xypcre.exe";
   $l3 = "<xypath>\xypcre.exe";
@@ -290,8 +294,7 @@ FUNCTION xypcrefind(){
     download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849',$l1,'o';
     $xypcre = $l1;
   }
-  //$xypcre = """<xyscripts>\inc\xypcre\autoit3.exe"" ".
-  // """<xyscripts>\inc\xypcre\xypcre_stripped.au3""";
+  //$xypcre = """autoit3.exe"" ""<xyscripts>\inc\xypcre\xypcre_stripped.au3""";
   //if (gettoken(runret($xypcre),1,<crlf>)!='XYplorerPCRE') {//for xypcre.au3
   If (property('System.Software.ProductName',$xypcre)!='XYplorerPCRE') {
     echo "Cannot find xypcre.","XYPCRE error",,9; $xypcre = ''; }

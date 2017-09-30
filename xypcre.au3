@@ -24,13 +24,13 @@ Opt('GUIOnEventMode', 1)
 
 ;if run without parameters, return programidentifier and quit
 ;an alternative programidentifier is the productname property
-If($CmdLine[0] == 0) Then
+If ($CmdLine[0] == 0) Then
 	ConsoleWrite("XYplorerPCRE")
 	; if 1st param is abort, close a misbehaving xypcre by hwnd
-ElseIf($CmdLine[1] == 'abort') Then
-	If($CmdLine[2] <> '') Then WinKill(HWnd($CmdLine[2]))
-	;close another xypcre by given hwnd (condition stops an error)
-ElseIf($CmdLine[0] == 2) Then
+ElseIf ($CmdLine[1] == 'abort') Then
+	If ($CmdLine[2] <> '') Then WinKill(HWnd($CmdLine[2]))
+	;close another xypcre by given hwnd (if cond. stops an error)
+ElseIf ($CmdLine[0] == 2) Then
 	Main()
 EndIf
 Exit
@@ -39,9 +39,9 @@ Exit
 Func Main()
 	Global Const $XYhWnd = $CmdLine[1] ; hwnd of calling XY process
 	Global Const $IFS = $CmdLine[2] ; session $IFS variable
-	Global Const $dwScript = 0x00400001 ; sent data as script
+	Global Const $dwScript = 0x00400001 ; send data as script
 	Global Const $dwString = 0x00400000 ; send data as string
-	Global $Data ; holds latest sent/received data
+	Global $Data ; contains latest sent/received data
 	Global $pstep = -1 ; controls flow
 	Global $nstep = 0 ; controls flow
 	;params
@@ -67,7 +67,6 @@ Func Main()
 	GUIRegisterMsg($WM_COPYDATA, "IN_XYMSG")
 	; GUISetState() ; GUI is hidden if commented out
 
-	;MsgBox(0, "", "start")
 	$op = MsgWaiter($dwScript) ;get op mode
 	Switch $op
 		Case 0
@@ -99,7 +98,7 @@ EndFunc   ;==>MsgWaiter
 
 ;fill $Data with XY IFS reset/loopbreaker script
 Func ResetData()
-	$Data = "::perm " & $IFS & "=" & $hWnd
+	$Data = "::perm " & $IFS & "=" & $hWnd & ";"
 EndFunc   ;==>ResetData
 
 ;escape a string for $sep separator
@@ -114,7 +113,7 @@ Func SepEscape($str)
 			EndIf
 		Next
 		;fill $u with only unique chars
-		If($s[$i] <> '') Then
+		If ($s[$i] <> '') Then
 			$u[$k] = $s[$i]
 			$k += 1 ; keep count of unique chars
 			$s[$i] = '' ;memorysave ?s
@@ -189,20 +188,20 @@ Func pcreMatch() ; $string, $pattern, $sep, $index, $format
 	Switch $matchErr
 		Case 0 ; valid array, matches found
 			;if index is defined, return only one match
-			If($index > 0) Then
-				If($index <= UBound($matchArr)) Then
+			If ($index > 0) Then
+				If ($index <= UBound($matchArr)) Then
 					$result = ($matchArr[$index - 1])[0]
 				Else ; index > matchcount, return last match
 					$result = ($matchArr[UBound($matchArr) - 1])[0]
 				EndIf
-				If($format == 1) Then
+				If ($format == 1) Then
 					$result = SepEscape($result)
-				ElseIf($format == 2) Then
+				ElseIf ($format == 2) Then
 					$result = StringLen($result) & '|' & $result
 				EndIf
 				;else make formatted matchlist
 			Else
-				If($format == 2) Then
+				If ($format == 2) Then
 					Local $strlens, $strs
 					For $i = 0 To UBound($matchArr) - 1
 						$strlens = $strlens & '+' & StringLen(($matchArr[$i])[0])
@@ -210,7 +209,7 @@ Func pcreMatch() ; $string, $pattern, $sep, $index, $format
 						$matchArr[$i] = ''
 					Next
 					$result = StringTrimLeft($strlens, 1) & '|' & $strs
-				ElseIf($format == 1) Then
+				ElseIf ($format == 1) Then
 					For $i = 0 To UBound($matchArr) - 1
 						$result = $result & SepEscape(($matchArr[$i])[0]) & $sep
 						$matchArr[$i] = '' ; memorysave ?
@@ -265,13 +264,13 @@ Func pcreCapture() ; $string, $pattern, $index, $sep, $format
 	Switch $matchErr
 		Case 0 ; valid array, matches found
 			;validate index
-			If($index < 1) Then
+			If ($index < 1) Then
 				$index = 1
-			ElseIf($index >= UBound($matchArr[0])) Then ; each array has *global* + groups
+			ElseIf ($index >= UBound($matchArr[0])) Then ; each array has *global* + groups
 				$index = UBound($matchArr[0]) - 1 ; lastgroup index
 			EndIf
 			;build $indexth capture groups from each match
-			If($format == 2) Then
+			If ($format == 2) Then
 				Local $strlens, $strs
 				For $i = 0 To UBound($matchArr) - 1
 					$strlens = $strlens & '+' & StringLen(($matchArr[$i])[$index])
@@ -279,7 +278,7 @@ Func pcreCapture() ; $string, $pattern, $index, $sep, $format
 					$matchArr[$i] = ''
 				Next
 				$result = StringTrimLeft($strlens, 1) & '|' & $strs
-			ElseIf($format == 1) Then
+			ElseIf ($format == 1) Then
 				For $i = 0 To UBound($matchArr) - 1
 					$result = $result & SepEscape(($matchArr[$i])[$index]) & $sep
 					$matchArr[$i] = ''
@@ -326,14 +325,14 @@ Func pcreSplit() ; $string, $pattern, $sep, $format
 	$stop = 0
 	$err = 0
 	$pos = 1
-	While($stop <> 1)
+	While ($stop <> 1)
 		Local $match = StringRegExp($string, $pattern, 2)
 		$err = @error
 		$pos = @extended
-		If($err == 2) Then
+		If ($err == 2) Then
 			MsgBox(0 + 16, $splitErrStr, "pattern error at char " & $pos)
 			Return ''
-		ElseIf($err == 1) Then ;match not found
+		ElseIf ($err == 1) Then ;match not found
 			$stop = 1
 			$sub = $string
 			$string = ''
@@ -341,16 +340,16 @@ Func pcreSplit() ; $string, $pattern, $sep, $format
 			$sub = StringLeft($string, $pos - StringLen($match[0]) - 1) ;get pre-matching part
 			$string = StringTrimLeft($string, $pos - 1) ;remove sub from string
 		EndIf
-		If($format == 2) Then
+		If ($format == 2) Then
 			$strlens = $strlens & '+' & StringLen($sub)
 			$strs = $strs & $sub
-		ElseIf($format == 1) Then
+		ElseIf ($format == 1) Then
 			$result = $result & SepEscape($sub) & $sep
 		Else
 			$result = $result & $sub & $sep
 		EndIf
 	WEnd
-	If($format == 2) Then
+	If ($format == 2) Then
 		$result = StringTrimLeft($strlens, 1) & '|' & $strs
 	Else
 		$result = StringTrimRight($result, StringLen($sep))
