@@ -1,14 +1,18 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=xypcre.ico
-#AutoIt3Wrapper_Outfile=..\..\xypcre.exe
+#AutoIt3Wrapper_Icon=.\xypcre.ico
+#AutoIt3Wrapper_Outfile=.\xypcre.exe
 #AutoIt3Wrapper_Compression=0
 #AutoIt3Wrapper_UseUpx=y
 #AutoIt3Wrapper_UseX64=n
-#AutoIt3Wrapper_Res_Fileversion=1.1.0.8
+#AutoIt3Wrapper_Res_Fileversion=1.1.9
+#AutoIt3Wrapper_Res_ProductVersion=1.1.9
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=p
+#AutoIt3Wrapper_Res_Fileversion_First_Increment=Y
+#AutoIt3Wrapper_Res_Field=ProductName|XYplorerPCRE
+#AutoIt3Wrapper_Res_Description=PCRE scripting helper for XYplorer
+#AutoIt3Wrapper_Res_Comment=https://www.github.com/SammaySarkar/xypcre
 #AutoIt3Wrapper_Res_LegalCopyright=author: SammaySarkar
 #AutoIt3Wrapper_Res_Language=1033
-#AutoIt3Wrapper_Res_Field=Productname|XYplorerPCRE
 #AutoIt3Wrapper_Run_Tidy=y
 #Tidy_Parameters=/tc 0 /reel /gd
 #AutoIt3Wrapper_Tidy_Stop_OnError=n
@@ -84,7 +88,7 @@ EndFunc   ;==>Main
 ;send $Data with XY loopbreaker, wait for XY send, put received to $Data
 Func MsgWaiter($dwdata)
 	ResetData()
-	OUT_XYMSG($Data, $dwdata) ; send $Data with loopbreaker
+	OUT_XYMSG($dwdata) ; send $Data with loopbreaker
 	;$pstep incremented in IN_XYMSG() on each reception
 	Do ; wait till then
 		ContinueLoop
@@ -124,24 +128,24 @@ Func SepEscape($str)
 	Return $str
 EndFunc   ;==>SepEscape
 
-Func opReplace()
+Func opReplace() ; $string, $pattern, $replace
 	$string = MsgWaiter($dwScript)
 	$pattern = MsgWaiter($dwScript)
 	$replace = MsgWaiter($dwScript)
 	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
-	OUT_XYMSG($Data, $dwScript)
+	OUT_XYMSG($dwScript)
 	;sets $Data = final result
-	$Data = pcreReplace($string, $pattern, $replace)
+	$Data = pcreReplace()
 	$Data = $op & $Data ; prefix $op to identify result data
 	;MsgBox(0, "sending", $Data)
-	OUT_XYMSG($Data, $dwString) ;send result as string
+	OUT_XYMSG($dwString) ;send result as string
 	;ResetData() ;maybe one last transfer of errors etc
-	;OUT_XYMSG($Data, $XYhWnd, $dwScript)
+	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opReplace
-Func pcreReplace(ByRef $string, ByRef $pattern, ByRef $replace)
+Func pcreReplace()
 	Local $result = StringRegExpReplace($string, $pattern, $replace)
 	Local $resultErr = @error
 	Local $resultExt = @extended
@@ -164,20 +168,21 @@ Func opMatch()
 	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
-	OUT_XYMSG($Data, $dwScript)
+	OUT_XYMSG($dwScript)
 	;sets $Data = final result
-	$Data = pcreMatch($string, $pattern, $sep, $index, $format)
+	$Data = pcreMatch()
 	$Data = $op & $Data ; prefix $op to identify result data
-	OUT_XYMSG($Data, $dwString) ;send result as string
+	OUT_XYMSG($dwString) ;send result as string
 	;ResetData() ;maybe one last transfer of errors etc
-	;OUT_XYMSG($Data, $XYhWnd, $dwScript)
+	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opMatch
-Func pcreMatch(ByRef $string, ByRef $pattern, ByRef $sep, ByRef $index, ByRef $format)
+Func pcreMatch() ; $string, $pattern, $sep, $index, $format
 	Local $matchArr = StringRegExp($string, $pattern, 4)
 	Local $matchErr = @error
 	Local $matchExt = @extended
 	Local $result
+
 	;MsgBox(0, "", ($matchArr[0])[0])
 	;returns 2D array: [[globalmatch][group1][group2]][[globalmatch]...]...
 	;we want to get the global matches only, so ($matchArr[$i])[0]
@@ -239,17 +244,17 @@ Func opCapture()
 	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
-	OUT_XYMSG($Data, $dwScript)
+	OUT_XYMSG($dwScript)
 	;sets $Data = final result
-	$Data = pcreCapture($string, $pattern, $index, $sep, $format)
+	$Data = pcreCapture()
 	$Data = $op & $Data ; prefix $op to identify result data
 	;MsgBox(0, "sending", $Data)
-	OUT_XYMSG($Data, $dwString) ;send result as string
+	OUT_XYMSG($dwString) ;send result as string
 	;ResetData() ;maybe one last transfer of errors etc
-	;OUT_XYMSG($Data, $XYhWnd, $dwScript)
+	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opCapture
-Func pcreCapture(ByRef $string, ByRef $pattern, ByRef $index, ByRef $sep, ByRef $format)
+Func pcreCapture() ; $string, $pattern, $index, $sep, $format
 	Local $matchArr = StringRegExp($string, $pattern, 4)
 	Local $matchErr = @error
 	Local $matchExt = @extended
@@ -306,17 +311,17 @@ Func opSplit()
 	;all necessary params received
 	;send last $IFS reset, next transfer will be the result
 	ResetData()
-	OUT_XYMSG($Data, $dwScript)
+	OUT_XYMSG($dwScript)
 	;sets $Data = final result
-	$Data = pcreSplit($string, $pattern, $sep, $format)
+	$Data = pcreSplit()
 	$Data = $op & $Data ; prefix $op to identify result data
 	;MsgBox(0, "sending", $Data)
-	OUT_XYMSG($Data, $dwString) ;send result as string
+	OUT_XYMSG($dwString) ;send result as string
 	;ResetData() ;maybe one last transfer of errors etc
-	;OUT_XYMSG($Data, $XYhWnd, $dwScript)
+	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opSplit
-Func pcreSplit(ByRef $string, ByRef $pattern, ByRef $sep, ByRef $format)
+Func pcreSplit() ; $string, $pattern, $sep, $format
 	Local $stop, $err, $pos, $result, $sub, $strlens, $strs
 	$stop = 0
 	$err = 0
@@ -369,7 +374,7 @@ Func IN_XYMSG($hWnd, $Msg, $wParam, $lParam)
 EndFunc   ;==>IN_XYMSG
 
 ; send data to XY via WM_COPYDATA (original author: Marco)
-Func OUT_XYMSG(ByRef $Data, ByRef Const $dwdata)
+Func OUT_XYMSG(ByRef Const $dwdata)
 	Local $pCds = DllStructCreate("ulong_ptr;dword;ptr")
 	Local $iSize = StringLen($Data)
 	Local $pMem = DllStructCreate("wchar[" & $iSize & "]")

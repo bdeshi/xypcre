@@ -1,4 +1,5 @@
-/*  Alternative to default RegExMatch() and RegExReplace()  
+/*              XYplorerPCRE aka xypcre v1.1.9              
+    Alternative to default RegExMatch() and RegExReplace()  
   url:http://www.xyplorer.com/xyfc/viewtopic.php?f=7&t=14569
   allows XYplorer to use a PCRE-compatible RegularExpression
   engine instead of the limited Visual Basic implementation.
