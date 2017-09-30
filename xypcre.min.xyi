@@ -68,6 +68,7 @@ FUNCTION xypcrefind(){
  $l3="<xypath>\xypcre.exe";if(isset($P_UDF_pcre_xypcre)==1)
  {$x=$P_UDF_pcre_xypcre;}elseif(exists($l1)==1){$x=$l1;}
  elseif(exists($l2)==1){$x=$l2;}elseif(exists($l3)==1){$x=$l3;}
+ else{echo "Downloading xypcre to<crlf>$l1","XYPCRE not found";
  else{download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849',
  $l1,'o';$x=$l1;}If(property('System.Software.ProductName',$x)!='XYplorerPCRE')
  {echo "Cannot find xypcre.","XYPCRE error",,9;$x='';}return $x;}
