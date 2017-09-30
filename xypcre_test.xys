@@ -1,0 +1,27 @@
+INCLUDE "inc\xypcre.xyi";
+"test"
+ set $r;
+ $o = pcrereplace('CamelCaseName.', '([0-9a-z])([A-Z])','\1 \2');
+ text $o;
+ $o = pcrematch(runret("%COMSPEC% /c set"), '(?m)^(A.*?)\=', '(()',,1);
+ text $o;
+ //text pcretoken($o, 3,1, '(()');
+ $o = pcrereplace('<test>a</test> <test>b</test> <test>c</Test>', '(?i)<test>(.*?)</test>', '<p>$1</p>');
+ text $o;
+ $o = pcrecapture('<test>a|||</test> <test>b</test> <test>c</Test>', '(?i)<test>(.*?)(</test>)', '1',,2);
+ text $o;
+ //text pcretoken($o, 1,2);
+ $o = pcrecapture(runret("%COMSPEC% /c set"), '(?mi)^(p(?=a).*?)\=', 1, '=',2);
+ text $o;
+ $o = pcresplit('str', '.*'); //should hang
+ text $o;
+ 
+ //text pcretoken($o, 'count', 2, '=');
+ // $e = expected
+ //$r = $r.($o==$e).' test 1'.<crlf>;
+ //$o = 
+ //$e = 
+ //$r = $r.($o==$e).' test 1'.<crlf>;
+
+
+ //text $r;
