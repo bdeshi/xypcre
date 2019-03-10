@@ -6,6 +6,8 @@ INCLUDE "inc\xypcre.xyi";
  $o = pcrematch(runret("%COMSPEC% /c set"), '(?m)^(A.*?)\=', '(()',,1);
  text $o;
  //text pcretoken($o, 3,1, '(()');
+ $o = pcrereplace("a,b,c,b,ed,bb,d", "b,(?=d)", '');
+ text $o;
  $o = pcrereplace('<test>a</test> <test>b</test> <test>c</Test>', '(?i)<test>(.*?)</test>', '<p>$1</p>');
  text $o;
  $o = pcrecapture('<test>a|||</test> <test>b</test> <test>c</Test>', '(?i)<test>(.*?)(</test>)', '1',,2);

@@ -19,6 +19,8 @@
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/rm /so /rsln
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+
+#include <SendMessage.au3>
 ; Opt('TrayIconHide', 1)
 Opt('GUIOnEventMode', 1)
 
@@ -58,12 +60,9 @@ Func Main()
 	Global Const $captureErrStr = "pcrecapture() error"
 	Global Const $splitErrStr = "pcresplit() error"
 
+	Global Const $hWnd = Dec(StringTrimLeft(GUICreate("xypcre"), 2)) _ ; msggui hwnd
+			 & '|' & WinGetHandle(AutoItWinGetTitle()) ; main gui hwnd
 	Global Const $WM_COPYDATA = 0x004A ; msg ID of WM_COPYDATA (dec: 74)
-	Global Const $GUI_RUNDEFMSG = 'GUI_RUNDEFMSG' ;trigger autoit3 msg handler after own
-
-	Global Const $hWnd = Dec(StringTrimLeft(GUICreate("xypcre"), 2)) _;msggui hwnd
-			 & '|' & WinGetHandle(AutoItWinGetTitle()) ;main gui hwnd
-	Global Const $hUser32dll = DllOpen("user32.dll") ; openonce dll for sending wm_copydata
 	GUIRegisterMsg($WM_COPYDATA, "IN_XYMSG")
 	; GUISetState() ; GUI is hidden if commented out
 
@@ -79,7 +78,6 @@ Func Main()
 			opSplit()
 	EndSwitch
 
-	DllClose($hUser32dll) ; close opened dll
 	Return
 EndFunc   ;==>Main
 
@@ -144,11 +142,11 @@ Func opReplace() ; $string, $pattern, $replace
 	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opReplace
+
 Func pcreReplace()
 	Local $result = StringRegExpReplace($string, $pattern, $replace)
 	Local $resultErr = @error
 	Local $resultExt = @extended
-
 	Switch $resultErr
 		; Case 0 ; success
 		Case 2 ; pattern error
@@ -176,6 +174,7 @@ Func opMatch()
 	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opMatch
+
 Func pcreMatch() ; $string, $pattern, $sep, $index, $format
 	Local $matchArr = StringRegExp($string, $pattern, 4)
 	Local $matchErr = @error
@@ -253,6 +252,7 @@ Func opCapture()
 	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opCapture
+
 Func pcreCapture() ; $string, $pattern, $index, $sep, $format
 	Local $matchArr = StringRegExp($string, $pattern, 4)
 	Local $matchErr = @error
@@ -320,6 +320,7 @@ Func opSplit()
 	;OUT_XYMSG($dwScript)
 	Return
 EndFunc   ;==>opSplit
+
 Func pcreSplit() ; $string, $pattern, $sep, $format
 	Local $stop, $err, $pos, $result, $sub, $strlens, $strs
 	$stop = 0
@@ -361,28 +362,27 @@ EndFunc   ;==>pcreSplit
 
 ; incoming WM_COPYDATA handler
 ; sets Global $Data to incoming data, and inrcrements Global $Step
-Func IN_XYMSG($hWnd, $Msg, $wParam, $lParam)
-	Local $tagCOPYDATASTRUCT = 'ulong_ptr dwData;' & 'dword cbData;' & 'ptr lpData'
-	Local $tCOPYDATASTRUCT = DllStructCreate($tagCOPYDATASTRUCT, $lParam)
-	Local $tBuffer = DllStructCreate('wchar cdata[' & DllStructGetData($tCOPYDATASTRUCT, 'cbData') / 2 & ']', _
-			DllStructGetData($tCOPYDATASTRUCT, 'lpData'))
-	; Local $dwData = DllStructGetData($tCOPYDATASTRUCT, 'dwData')
-	$Data = DllStructGetData($tBuffer, 'cdata') ; Data.
+Func IN_XYMSG($_hWnd, $_Msg, $_wParam, $lParam)
+	Local $copyDataStruct = DllStructCreate('dword dwData;dword cbData;ptr lpData', $lParam)
+	Local $lpData = DllStructGetData($copyDataStruct, 'lpData')
+	Local $dataSize = DllStructGetData($copyDataStruct, 'cbData') / 2
+	Local $dataStruct = DllStructCreate('wchar data[' & $dataSize & ']', $lpData)
+	$Data = DllStructGetData($dataStruct, 'data') ; Data.
+	If ($dataSize = 0) Then $Data = ''
 	$pstep += 1 ;enable wait for next data reception
-	Return $GUI_RUNDEFMSG ; for autoit3 default msghandler
+	Return True
 EndFunc   ;==>IN_XYMSG
 
 ; send data to XY via WM_COPYDATA (original author: Marco)
-Func OUT_XYMSG(ByRef Const $dwdata)
-	Local $pCds = DllStructCreate("ulong_ptr;dword;ptr")
-	Local $iSize = StringLen($Data)
-	Local $pMem = DllStructCreate("wchar[" & $iSize & "]")
-	DllStructSetData($pMem, 1, $Data)
-	DllStructSetData($pCds, 1, $dwdata)
-	DllStructSetData($pCds, 2, ($iSize * 2))
-	DllStructSetData($pCds, 3, DllStructGetPtr($pMem))
-	DllCall($hUser32dll, "lresult", "SendMessageW", "hwnd", $XYhWnd, "uint", $WM_COPYDATA, _
-			"wparam", 0, "lparam", DllStructGetPtr($pCds))
-	Return
+Func OUT_XYMSG(ByRef Const $dwData)
+	Local $dataSize = StringLen($Data)
+	Local $dataStruct = DllStructCreate('wchar data[' & $dataSize & ']')
+	Local $copyDataStruct = DllStructCreate('dword dwData;dword cbData;ptr lpData')
+	DllStructSetData($dataStruct, 'data', $Data)
+	DllStructSetData($copyDataStruct, 'dwData', $dwData)
+	DllStructSetData($copyDataStruct, 'cbData', $dataSize * 2)   ; $dataSize is 2bytes per wchar
+	DllStructSetData($copyDataStruct, 'lpData', DllStructGetPtr($dataStruct))
+	_SendMessage($XYhWnd, $WM_COPYDATA, $hWnd, DllStructGetPtr($copyDataStruct))
+	Return True
 EndFunc   ;==>OUT_XYMSG
 
