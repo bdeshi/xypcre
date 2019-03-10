@@ -37,7 +37,6 @@ Return: list of matches.
 FUNCTION pcrematch($string, $pattern, $sep='||', $index=0, $format=2) {
   //locate and validate the xypcre utility
   $xypcre = xypcrefind();
-  if ($xypcre == '') || ($xypcre == 'xypcrefind()') { return; }
 
   //setup the interapp-flow-synchronizer variable
   $IFS = '$P_UDF_pcre_IFS';  $k = 0;
@@ -288,7 +287,7 @@ FUNCTION xypcrefind() {
   $l1 = "<xyscripts>\xypcre.exe";
   $l2 = "<xydata>\xypcre.exe";
   $l3 = "<xypath>\xypcre.exe";
-  if     (isset($P_UDF_pcre_xypcre) == 1) { $xypcre = $P_UDF_pcre_xypcre; }
+  if     (isset($P_UDF_pcre_xypcre) == 1) { $xypcre = $P_UDF_pcre_xypcre, 'r'; }
   elseif (exists($l1) == 1) { $xypcre = $l1; }
   elseif (exists($l2) == 1) { $xypcre = $l2; }
   elseif (exists($l3) == 1) { $xypcre = $l3; }
@@ -297,10 +296,11 @@ FUNCTION xypcrefind() {
     download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849', $l1, 'o';
     $xypcre = $l1;
   }
-  //$xypcre = """autoit3.exe"" ""<xyscripts>\inc\xypcre\xypcre_stripped.au3""";
-  //if (gettoken(runret($xypcre),1,<crlf>)!='XYplorerPCRE') {//for xypcre.au3
-  If (property('System.Software.ProductName', $xypcre) != 'XYplorerPCRE') {
-    $xypcre = ''; echo "Cannot find xypcre.", "XYPCRE error",, 9;
+  if !(strpos(gpc($xypcre, 'ext'), 'exe') {
+    $identity = property('System.Software.ProductName', $xypcre);
+  } else {
+    $identity = gettoken(runret($xypcre), 1, <crlf>);
   }
+  assert $identity == 'XYplorerPCRE', "Cannot find xypcre: $xypcre";
   return $xypcre;
 }
