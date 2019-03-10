@@ -296,7 +296,7 @@ FUNCTION xypcrefind() {
     download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849', $l1, 'o';
     $xypcre = $l1;
   }
-  if !(strpos(gpc($xypcre, 'ext'), 'exe') {
+  if !(strpos(gpc($xypcre, 'ext'), 'exe')) {
     $identity = property('System.Software.ProductName', $xypcre);
   } else {
     $identity = gettoken(runret($xypcre), 1, <crlf>);
