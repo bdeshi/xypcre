@@ -169,7 +169,7 @@ The system is comprised of a xyscript include file: `xypcre.xyi`, and an executa
   + `<xyscripts>\xypcre.exe`, then,
   + `<xydata>\xypcre.exe`, then,
   + `<xypath>\xypcre.exe`, then,
-  + If the utility is not found, it is downloaded from [this page][:url_dl].
+  + If the utility is not found, it is downloaded from the releases page of the github repo.
     If downloading failed, the parent function aborts and returns an empty string.
 
 * The helper functions must be included with core functions, especially when specific
@@ -209,6 +209,5 @@ The system is comprised of a xyscript include file: `xypcre.xyi`, and an executa
 
 Read all that? Really, that entire tower of text? Great! I hope you find it useful. :tup:
 
-[:url_dl]: https://example.com
 [:ref_rx1]: https://www.autoitscript.com/autoit3/docs/functions/StringRegExp.htm
 [:ref_rx2]: http://www.pcre.org/original/doc/html/pcrepattern.html

@@ -293,7 +293,7 @@ FUNCTION xypcrefind() {
   elseif (exists($l3) == 1) { $xypcre = $l3; }
   else   {
     echo "Downloading xypcre to<crlf>$l1", "XYPCRE not found";
-    download 'http://www.xyplorer.com/xyfc/download/file.php?id=7849', $l1, 'o';
+    download 'https://github.com/bdeshi/xypcre/releases/download/1.2.0/xypcre.exe', $l1, 'o';
     $xypcre = $l1;
   }
   if !(strpos(gpc($xypcre, 'ext'), 'exe')) {
