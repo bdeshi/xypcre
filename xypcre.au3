@@ -4,8 +4,8 @@
 #AutoIt3Wrapper_Compression=0
 #AutoIt3Wrapper_UseUpx=y
 #AutoIt3Wrapper_UseX64=n
-#AutoIt3Wrapper_Res_Fileversion=1.3.0
-#AutoIt3Wrapper_Res_ProductVersion=1.3.0
+#AutoIt3Wrapper_Res_Fileversion=1.3.1
+#AutoIt3Wrapper_Res_ProductVersion=1.3.1
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=p
 #AutoIt3Wrapper_Res_Fileversion_First_Increment=Y
 #AutoIt3Wrapper_Res_Field=ProductName|XYplorerPCRE
